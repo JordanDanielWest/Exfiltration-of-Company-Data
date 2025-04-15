@@ -1,5 +1,6 @@
-<img src="https://github.com/user-attachments/assets/1fdeab0f-54d0-40dd-a6e1-9a3fac3b5e5d" width="500">
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1fdeab0f-54d0-40dd-a6e1-9a3fac3b5e5d" width="500">
+</p>
 
 
 # Exfiltration of Company Data
