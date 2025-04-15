@@ -12,10 +12,9 @@
 - Kusto Query Language (KQL)
 - Powershell
 
-##  Scenario
+##  Scenario: Unusual Outbound HTTP Traffic Detected from Non-Admin Workstation
 
-Management suspects that some employees may be using TOR browsers to bypass network security controls because recent network logs show unusual encrypted traffic patterns and connections to known TOR entry nodes. Additionally, there have been anonymous reports of employees discussing ways to access restricted sites during work hours. The goal is to detect any TOR usage and analyze related security incidents to mitigate potential risks. If any use of TOR is found, notify management.
-
+The security team noticed multiple non-standard PowerShell processes establishing outbound HTTP connections during routine log reviews. One particular connection stood out — a direct pull from a raw GitHub URL followed by script execution. Management has requested a threat hunt to determine if any intellectual property has been exfiltrated using unauthorized tools or scripts.
 ### High-Level TOR-Related IoC Discovery Plan
 
 - **Check `DeviceFileEvents`** for any `tor(.exe)` or `firefox(.exe)` file events.
