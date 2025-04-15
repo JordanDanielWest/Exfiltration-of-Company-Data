@@ -1,7 +1,7 @@
 
 
 
-# Threat Hunt Report: Unauthorized TOR Usage
+# Exfiltration of Company Data
 - [Scenario Creation](https://github.com/JordanDanielWest/Exfiltration-of-Company-Data/blob/main/Exfiltration%20of%20Company%20Data%20Event%20Creation.md)
 
 ## Platforms and Languages Leveraged
