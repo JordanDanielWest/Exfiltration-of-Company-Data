@@ -14,12 +14,11 @@
 
 ##  Scenario: Unusual Outbound HTTP Traffic Detected from Non-Admin Workstation
 
-The security team noticed multiple non-standard PowerShell processes establishing outbound HTTP connections during routine log reviews. One particular connection stood out — a direct pull from a raw GitHub URL followed by script execution. Management has requested a threat hunt to determine if any intellectual property has been exfiltrated using unauthorized tools or scripts.
-### High-Level TOR-Related IoC Discovery Plan
+An employee named John Doe, working in a sensitive department, recently got put on a performance improvement plan (PIP). After John threw a fit, management has raised concerns that John may be planning to steal proprietary information and then quit the company. Your task is to investigate John's activities on his corporate device (windows-target-1) using Microsoft Defender for Endpoint (MDE) and ensure nothing suspicious is taking place.
 
-- **Check `DeviceFileEvents`** for any `tor(.exe)` or `firefox(.exe)` file events.
-- **Check `DeviceProcessEvents`** for any signs of installation or usage.
-- **Check `DeviceNetworkEvents`** for any signs of outgoing connections over known TOR ports.
+- **Check `DeviceFileEvents`**
+- **Check `DeviceProcessEvents`**
+- **Check `DeviceNetworkEvents`**
 
 ---
 
@@ -27,37 +26,43 @@ The security team noticed multiple non-standard PowerShell processes establishin
 
 ### 1. Searched the `DeviceFileEvents` Table
 
-I searched the DeviceFileEvents table for any string with the word ‘tor’ in it and discovered that the user ‘ds9-cisco’ downloaded and installed a tor browser and created several tor related documents on the desktop and created a text file titled “tor-shopping-list.txt” on the desktop at 2025-04-14T21:18:38.2736577Z. These events began at: 2025-04-14T21:01:37.1940431Z
+I conducted search within MDE DeviceFileEvents for anyFileNames that end with ”.zip” file on the “edr-machine”
 
 **Query used to locate events:**
 
 ```kql
 DeviceFileEvents
-| where FileName contains "tor"
 | where DeviceName == "edr-machine"
-| where InitiatingProcessAccountName == "ds9-cisco"
-| where Timestamp >= datetime(2025-04-14T21:01:37.1940431Z)
+| where Timestamp >= datetime(2025-04-15T14:11:46.5195615Z)
+| where FileName endswith ".zip"
 | sort by Timestamp desc
-| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+
 ```
-![image](https://github.com/user-attachments/assets/351bd797-4e4e-453b-881e-5c8b4795bced)
+![image](https://github.com/user-attachments/assets/34229330-5f89-491b-8a44-597fe048d905)
+
 
 ---
 
 ### 2. Searched the `DeviceProcessEvents` Table
 
-I searched the DeviceProcessEvents table for any ProcessCommandLine that contained the string ‘tor-browser-windows-x86_64-portable-14.0.9.exe’. Based on the logs returned on April 14, 2025, at 4:04:58 PM Central Time, the user "ds9-cisco" on device "edr-machine" silently executed the file tor-browser-windows-x86_64-portable-14.0.9.exe from the Downloads folder. The SHA-256 hash of the file is af243ca521ac0f02b21082dcbe1e6e87dc575797baf6e970530b6c0d1bfd5384, which matches the official hash provided by the Tor Project for this version, confirming its authenticity.
+I took an instance of a zip file being created, copied the Timestamp and created a new query under DeviceProcessEvents and then observed two minutes after and two minutes before the archive was created. I discovered around the same time that a powershell script was used to install 7zip silently in the background which then collected and zipped employee data into an archive:
+"cmd.exe" /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1
+
 
 **Query used to locate event:**
 
 ```kql
 
+let VMName = "edr-machine";
+let specificTime = datetime(2025-04-15T14:11:46.5195615Z);
 DeviceProcessEvents
-| where DeviceName == "edr-machine"
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.9.exe"
-| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName, ProcessCommandLine
+| where Timestamp between ((specificTime - 2m) .. (specificTime + 2m))
+| where DeviceName == VMName
+| order by Timestamp desc
+| project Timestamp, DeviceName, ActionType, FileName, ProcessCommandLine
 ```
-![image](https://github.com/user-attachments/assets/8a68b6f8-5ccf-434e-a9d6-382a96c9c206)
+![image](https://github.com/user-attachments/assets/a52845f8-3dca-40eb-9ee7-3d088b7837c1)
+
 
 
 ---
