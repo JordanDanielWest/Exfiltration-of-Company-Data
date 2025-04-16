@@ -67,38 +67,45 @@ DeviceProcessEvents
 
 ---
 
-### 3. Searched the `DeviceProcessEvents` Table for TOR Browser Execution
+### 3. Searched the `DeviceNetworkEvents` Table
 
-I searched the DeviceProcessEvents table for any indication that user "ds9-cisco" actually opened the Tor browser. There was evidence that they opened it at this time: 2025-04-14T21:05:30.6659937Z. There were several other instances of ‘firefox.exe’(Tor) as well as ‘tor.exe’ spawned afterwards.
+I then conducted a query within Device Network events and discovered no indication of exfiltration of data from the network.
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents
-| where DeviceName == "edr-machine"
-| where FileName has_any ("tor.exe", "torbrowser.exe", "start-tor-browser.exe", "tor-browser.exe", "firefox.exe", "tor-browser-windows-x86_64-portable-14.0.9.exe")
-| project Timestamp, DeviceName, ActionType, FileName, ProcessCommandLine, FolderPath, SHA256
-| sort by Timestamp desc
+let VMName = "edr-machine";
+let specificTime = datetime(2025-04-10T17:13:21.3552555Z);
+DeviceNetworkEvents
+| where Timestamp between ((specificTime - 2m) .. (specificTime + 2m))
+| where DeviceName == VMName
+| order by Timestamp desc
+| project Timestamp, DeviceName, ActionType
+
 
 ```
-![image](https://github.com/user-attachments/assets/e15501c2-18bb-44b6-bc2e-555786bc53d1)
 
 
-### 4. Searched the `DeviceNetworkEvents` Table for TOR Network Connections
 
-Searched the DeviceNetworksEvents table to determine if the Tor browser was used to establish a connection using any of the known Tor ports. On April 14, 2025, at 4:05:53 PM Central Time, the user “ds9-cisco” on device “edr-machine” initiated a successful connection from the Tor Browser's Firefox executable to the local SOCKS proxy at 127.0.0.1:9150. This indicates that the Tor Browser was actively routing traffic through its internal proxy.
+### Response:
 
-**Query used to locate events:**
+Immediately isolated the system once archiving of files was discovered.
+I relayed all of the information to the employee’s manager, including the information regarding the staging of zipped data into an archive created at regular intervals via powershell script. There was no clear evidence of exfiltration however I felt the situation was still suspicious enough to report as it seems to indicate staging of data T1074 – Data Staged of the MITRE ATT&CK framework.
 
-```kql
-DeDeviceNetworkEvents
-| where DeviceName == "edr-machine"
-| where InitiatingProcessAccountName != "system"
-| where InitiatingProcessFileName in ("tor.exe", "firefox.exe")
-| where RemotePort in ("9001", "9030", "9040", "9050", "9051","9150", "80", "443")
-| project Timestamp, DeviceName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessAccountName, InitiatingProcessFileName, InitiatingProcessFolderPath
-| sort by Timestamp desc
-```
-![image](https://github.com/user-attachments/assets/8f4b15e7-0d26-4c51-8f9d-e9bfbc355ccf)
+### MITRE ATT&CK TTPs Identified
+- **T1059 – Command and Scripting Interpreter**
+  - *T1059.001 – PowerShell*  
+	Use of PowerShell script (`exfiltratedata.ps1`) to automate tasks and bypass execution policies.
+- **T1560 – Archive Collected Data**
+  - *T1560.001 – Archive via Utility*  
+	Zipping sensitive files using 7-Zip installed silently via script.
+- **T1074 – Data Staged**  
+  Local staging of proprietary data into a ZIP file prior to potential exfiltration.
+- **T1204 – User Execution** 
+  Script manually executed under suspicious conditions
+- **T1105 – Ingress Tool Transfer** *(potential)*  
+  7-Zip installer was downloaded as part of the process
+
+
 
 ---
 
