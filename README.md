@@ -99,11 +99,11 @@ I relayed all of the information to the employee’s manager, including the info
   - *T1560.001 – Archive via Utility*  
 	Zipping sensitive files using 7-Zip installed silently via script.
 - **T1074 – Data Staged**  
-  Local staging of proprietary data into a ZIP file prior to potential exfiltration.
+ 	 Local staging of proprietary data into a ZIP file prior to potential exfiltration.
 - **T1204 – User Execution** 
-  Script manually executed under suspicious conditions
+  	Script manually executed under suspicious conditions
 - **T1105 – Ingress Tool Transfer** *(potential)*  
-  7-Zip installer was downloaded as part of the process
+  	7-Zip installer was downloaded as part of the process
 
 
 
