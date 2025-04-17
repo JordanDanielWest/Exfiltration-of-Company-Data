@@ -105,7 +105,7 @@ I relayed all of the information to the employee’s manager, including the info
 Local staging of proprietary data into a ZIP file prior to potential exfiltration.
 - **T1204 – User Execution** 
 Script manually executed under suspicious conditions
-- **T1105 – Ingress Tool Transfer** *(potential)*  
+- **T1105 – Ingress Tool Transfer**  
 7-Zip installer was downloaded as part of the process
 
 
