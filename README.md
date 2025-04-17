@@ -25,9 +25,9 @@ An employee named John Doe, working in a sensitive department, recently got put 
 
 ## Steps Taken
 
-### 1. Searched the `DeviceFileEvents` Table
+### 1. Searched the `DeviceProcessEvents` Table
 
-I conducted search within MDE DeviceFileEvents for anyFileNames that end with ”.zip” file on the “edr-machine”
+I ran a query on John Doe’s computer “windows-target-1” to determine if he was archiving company data. I discovered a ProcessCommandLine that indicates the execution of a 7zip file titled “employee-data-20250416124922.zip” which was saved to the ProgramData folder.
 
 **Query used to locate events:**
 
@@ -44,7 +44,7 @@ DeviceFileEvents
 
 ---
 
-### 2. Searched the `DeviceProcessEvents` Table
+### 2. Searched the `DeviceFileEvents` Table
 
 I took an instance of a zip file being created, copied the Timestamp and created a new query under DeviceProcessEvents and then observed two minutes after and two minutes before the archive was created. I discovered around the same time that a powershell script was used to install 7zip silently in the background which then collected and zipped employee data into an archive:
 "cmd.exe" /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1
