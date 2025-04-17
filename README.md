@@ -47,23 +47,22 @@ DeviceProcessEvents
 
 ### 2. Searched the `DeviceFileEvents` Table
 
-I took an instance of a zip file being created, copied the Timestamp and created a new query under DeviceProcessEvents and then observed two minutes after and two minutes before the archive was created. I discovered around the same time that a powershell script was used to install 7zip silently in the background which then collected and zipped employee data into an archive:
-"cmd.exe" /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1
-
+I took an instance of a zip file being created, copied the Timestamp(2025-04-16T08:49:14.2340327Z) and created a new query under DeviceFileEvents and then observed two minutes after and two minutes before the archive was created. I discovered around the same time that a powershell script was used to install 7zip silently in the background which then collected and zipped employee data into an archive.
 
 **Query used to locate event:**
 
 ```kql
 
-let VMName = "edr-machine";
-let specificTime = datetime(2025-04-15T14:11:46.5195615Z);
-DeviceProcessEvents
+let specificTime = datetime(2025-04-16T08:49:14.2340327Z);
+let VMName = "windows-target-1";
+DeviceFileEvents
 | where Timestamp between ((specificTime - 2m) .. (specificTime + 2m))
 | where DeviceName == VMName
 | order by Timestamp desc
-| project Timestamp, DeviceName, ActionType, FileName, ProcessCommandLine
+| project Timestamp, DeviceName, ActionType, FileName, FolderPath, InitiatingProcessCommandLine
+
 ```
-![image](https://github.com/user-attachments/assets/a52845f8-3dca-40eb-9ee7-3d088b7837c1)
+![image](https://github.com/user-attachments/assets/8154f089-7ecd-45b7-8606-3d38b7f905e5)
 
 
 
@@ -71,12 +70,13 @@ DeviceProcessEvents
 
 ### 3. Searched the `DeviceNetworkEvents` Table
 
-I then conducted a query within Device Network events and discovered no indication of exfiltration of data from the network.
+I then conducted a query within the DeviceNetworkEvents table and discovered no indication of exfiltration of data from the network.
+
 **Query used to locate events:**
 
 ```kql
-let VMName = "edr-machine";
-let specificTime = datetime(2025-04-10T17:13:21.3552555Z);
+let specificTime = datetime(2025-04-16T08:49:14.2340327Z);
+let VMName = "windows-target-1";
 DeviceNetworkEvents
 | where Timestamp between ((specificTime - 2m) .. (specificTime + 2m))
 | where DeviceName == VMName
@@ -92,6 +92,7 @@ DeviceNetworkEvents
 
 Immediately isolated the system once archiving of files was discovered.
 I relayed all of the information to the employee’s manager, including the information regarding the staging of zipped data into an archive created at regular intervals via powershell script. There was no clear evidence of exfiltration however I felt the situation was still suspicious enough to report as it seems to indicate staging of data T1074 – Data Staged of the MITRE ATT&CK framework.
+
 
 ### MITRE ATT&CK TTPs Identified
 - **T1059 – Command and Scripting Interpreter**
@@ -113,51 +114,47 @@ Script manually executed under suspicious conditions
 
 ## Chronological Event Timeline 
 
-### 1. File Download - TOR Installer
+1. Execution of PowerShell Script – exfiltratedata.ps1
 
-- **Timestamp:** `2025-04-14T21:01:37.1940431Z`
-- **Event:** The user "ds9-cisco" downloaded a file named `tor-browser-windows-x86_64-portable-14.0.9.exe` to the Downloads folder.
-- **Action:** File download detected.
-- **File Path:** `C:\Users\DS9-CISCO\Downloads\tor-browser-windows-x86_64-portable-14.0.9.exe`
+    Timestamp: 2025-04-16T08:49:00.7998534Z
 
-### 2. Process Execution - TOR Browser Installation
+    Event: The user "John Doe" executed a PowerShell script.
 
-- **Timestamp:** `2025-04-14T21:04:58.6035812Z`
-- **Event:** The user "ds9-cisco" executed the file `tor-browser-windows-x86_64-portable-14.0.9.exe` in silent mode, initiating a background installation of the TOR Browser.
-- **Action:** Process creation detected.
-- **Command:** `tor-browser-windows-x86_64-portable-14.0.9.exe /S`
-- **File Path:** `C:\Users\DS9-CISCO\Downloads\tor-browser-windows-x86_64-portable-14.0.9.exe`
+    Action: PowerShell script detected.
 
-### 3. Process Execution - TOR Browser Launch
+    File Path: C:\ProgramData\exfiltratedata.ps1
 
-- **Timestamp:** `2025-04-14T21:05:30.6659937Z`
-- **Event:** User "ds9-cisco" opened the TOR browser. Subsequent processes associated with TOR browser, such as `firefox.exe` and `tor.exe`, were also created, indicating that the browser launched successfully.
-- **Action:** Process creation of TOR browser-related executables detected.
-- **File Path:** `C:\Users\DS9-CISCO\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe`
+2. Silent Installation of 7-Zip
 
-### 4. Network Connection - TOR Network
+    Timestamp: 2025-04-16T08:49:07.1290321Z
 
-- **Timestamp:** `2025-04-14T21:05:38.1904337Z`
-- **Event:** A network connection to IP `194.147.140.107` on port `443` by user "ds9-cisco" was established using `tor.exe`, confirming TOR browser network activity.
-- **Action:** Connection success.
-- **Process:** `tor.exe`
-- **File Path:** `c:\users\ds9-cisco\desktop\tor browser\browser\torbrowser\tor\tor.exe`
+    Event: 7-Zip was installed silently via the PowerShell script.
 
-### 5. Additional Network Connections - TOR Browser Activity
+    Action: Installation of 7z.exe detected.
 
-- **Timestamps:**
-  - `2025-04-14T21:05:40.7830533Z` - Connected to `116.12.180.234` on port `443`.
-  - `2025-04-14T21:06:46.2718388Z` - Local connection to `194.147.140.107` on port `443`.
-- **Event:** Additional TOR network connections were established, indicating ongoing activity by user "ds9-cisco" through the TOR browser.
-- **Action:** Multiple successful connections detected.
+    File Path: C:\Program Files\7-Zip\7z.exe
 
-### 6. File Creation - TOR Shopping List
+    Command Line: powershell.exe -ExecutionPolicy Bypass -File C:\ProgramData\exfiltratedata.ps1
 
-- **Timestamp:** `2025-04-14T21:18:38.2736577Z`
-- **Event:** The user "ds9-cisco" created a file named `tor-shopping-list.txt` on the desktop, potentially indicating a list or notes related to their TOR browser activities.
-- **Action:** File creation detected.
-- **File Path:** `C:\Users\DS9-CISCO\Desktop\tor-shopping-list.txt`
+3. Creation of Archive File – employee-data-20250416124922.zip
 
+    Timestamp: 2025-04-16T08:49:14.2340327Z
+
+    Event: An archive containing employee data was created.
+
+    Action: 7z.exe used to zip files.
+
+    File Path: C:\ProgramData\employee-data-20250416124922.zip
+
+    Command Line: "C:\Program Files\7-Zip\7z.exe" a C:\ProgramData\employee-data-20250416124922.zip [source files]
+
+4. Network Activity Check – No Exfiltration Detected
+
+    Timestamp Range: 2025-04-16T08:47:14Z – 2025-04-16T08:51:14Z
+
+    Event: Reviewed outbound connections during and around archive creation.
+
+    Result: No network exfiltration detected from windows-target-1.
 ---
 
 ## Summary
