@@ -1,4 +1,4 @@
-# Threat Event (Exfiltration of Company Data)
+# Threat Event (Suspected Exfiltration of Company Data)
 **Use of Powershell to run "Malicious" script**
 
 ## Steps the "Bad Actor" took Create Logs and IoCs:
