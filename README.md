@@ -27,7 +27,7 @@ An employee named John Doe, working in a sensitive department, recently got put 
 
 ### 1. Searched the `DeviceProcessEvents` Table
 
-I ran a query on John Doe’s computer “windows-target-1” to determine if he was archiving company data. I discovered a ProcessCommandLine that indicates the execution of a 7zip file titled “employee-data-20250416124922.zip” which was saved to the ProgramData folder.
+I ran a query on John Doe’s computer “windows-target-1” to determine if he was archiving company data. I discovered a ProcessCommandLine that indicates the creation of a 7zip file titled “employee-data-20250416124922.zip” which was saved to the ProgramData folder.
 
 **Query used to locate events:**
 
