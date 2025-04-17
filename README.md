@@ -32,14 +32,15 @@ I ran a query on John Doe’s computer “windows-target-1” to determine if he
 **Query used to locate events:**
 
 ```kql
-DeviceFileEvents
-| where DeviceName == "edr-machine"
-| where Timestamp >= datetime(2025-04-15T14:11:46.5195615Z)
-| where FileName endswith ".zip"
-| sort by Timestamp desc
+let archive_applications = dynamic(["winrar.exe", "7z.exe", "winzip32.exe", "peazip.exe", "Bandizip.exe", "UniExtract.exe", "POWERARC.EXE", "IZArc.exe", "AshampooZIP.exe", "FreeArc.exe"]);
+let VMName = "windows-target-1";
+DeviceProcessEvents
+| where DeviceName == VMName
+| where FileName has_any(archive_applications)
+| order by Timestamp desc
 
 ```
-![image](https://github.com/user-attachments/assets/34229330-5f89-491b-8a44-597fe048d905)
+![image](https://github.com/user-attachments/assets/c6a6ebff-c56e-4cbe-b530-a3d1688507cc)
 
 
 ---
