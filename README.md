@@ -3,7 +3,7 @@
 </p>
 
 
-# Exfiltration of Company Data
+# Suspected Exfiltration of Company Data
 - [Scenario Creation](https://github.com/JordanDanielWest/Exfiltration-of-Company-Data/blob/main/Exfiltration%20of%20Company%20Data%20Event%20Creation.md)
 
 ## Platforms and Languages Leveraged
@@ -12,7 +12,7 @@
 - Kusto Query Language (KQL)
 - Powershell
 
-##  Scenario: Unusual Outbound HTTP Traffic Detected from Non-Admin Workstation
+##  Investigation Scenario: Data Exfiltration from PIPd Employee
 
 An employee named John Doe, working in a sensitive department, recently got put on a performance improvement plan (PIP). After John threw a fit, management has raised concerns that John may be planning to steal proprietary information and then quit the company. Your task is to investigate John's activities on his corporate device (windows-target-1) using Microsoft Defender for Endpoint (MDE) and ensure nothing suspicious is taking place.
 
