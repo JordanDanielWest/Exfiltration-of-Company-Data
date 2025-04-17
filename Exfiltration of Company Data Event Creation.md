@@ -82,6 +82,6 @@ DeviceNetworkEvents
 ## Revision History:
 | **Version** | **Changes**                   | **Date**         | **Modified By**   |
 |-------------|-------------------------------|------------------|-------------------|
-| 1.0         | Initial Draft                 |'September 6, 2024'| 'Josh Madakor' |
+| 1.0         | Initial Draft                 |`September 6, 2024`| `Josh Madakor` |
 | 2.0         | Updated draft                 | `April 16, 2025`  | `Jordan West`   |
 
