@@ -90,7 +90,7 @@ DeviceNetworkEvents
 
 ### Response:
 
-Immediately isolated the system once archiving of files was discovered.
+I Immediately isolated the system once archiving of files was discovered.
 I relayed all of the information to the employee’s manager, including the information regarding the staging of zipped data into an archive created at regular intervals via powershell script. There was no clear evidence of exfiltration however I felt the situation was still suspicious enough to report as it seems to indicate staging of data T1074 – Data Staged of the MITRE ATT&CK framework.
 
 
@@ -159,12 +159,7 @@ Script manually executed under suspicious conditions
 
 ## Summary
 
-The user "ds9-cisco" on the "edr-machine" device initiated and completed the installation of the TOR browser. They proceeded to launch the browser, establish connections within the TOR network, and created various files related to TOR on their desktop, including a file named `tor-shopping-list.txt`. This sequence of activities indicates that the user actively installed, configured, and used the TOR browser, likely for anonymous browsing purposes, with possible documentation in the form of the "shopping list" file.
+John Doe downloaded a PowerShell script named 'exfiltratedata.ps1' from a remote GitHub repository and saved it to the 'C:\ProgramData\' directory. He then executed the script with PowerShell, bypassing the default execution policy. As a result, the script simulated data exfiltration, demonstrating how an attacker might collect and transmit sensitive information.
 
 ---
 
-## Response Taken
-
-TOR usage was confirmed on the endpoint `edr-machine` by the user `ds9-cisco`. The device was isolated, and the user's direct manager was notified.
-
----# threat-hunting-scenario-tor# Exfiltration-of-Company-Data
