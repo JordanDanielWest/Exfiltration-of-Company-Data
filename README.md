@@ -159,7 +159,7 @@ Script manually executed under suspicious conditions
 
 ## Summary
 
-John Doe downloaded a PowerShell script named 'exfiltratedata.ps1' from a remote GitHub repository and saved it to the 'C:\ProgramData\' directory. He then executed the script with PowerShell, bypassing the default execution policy. As a result, the script simulated data exfiltration, demonstrating how an attacker might collect and transmit sensitive information.
+John Doe downloaded a PowerShell script named `exfiltratedata.ps1` from a remote GitHub repository and saved it to the `C:\ProgramData\` directory. He then executed the script with PowerShell, bypassing the default execution policy. As a result, the script simulated data exfiltration, demonstrating how an attacker might collect and transmit sensitive information.
 
 ---
 
